@@ -25,6 +25,7 @@ $router = new Router();
 
 // Cargar rutas
 require_once '../routes/web.php';
+require_once '../routes/auth.php';
 
 // Procesar la solicitud
 $router->dispatch();

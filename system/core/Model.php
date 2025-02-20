@@ -1,15 +1,18 @@
 <?php
-class Model {
+class Model
+{
     protected $db;
     protected $table = ''; // Nombre de la tabla
     protected $fillable = []; // Campos permitidos
     protected $softDelete = true; // 🚀 Soft Delete opcional
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->db = Database::getConnection();
     }
 
-    public function query($sql, $params = []) {
+    public function query($sql, $params = [])
+    {
         try {
             $stmt = $this->db->prepare($sql);
             $stmt->execute($params);
@@ -19,15 +22,18 @@ class Model {
         }
     }
 
-    public function fetch($sql, $params = []) {
+    public function fetch($sql, $params = [])
+    {
         return $this->query($sql, $params)->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function fetchAll($sql, $params = []) {
+    public function fetchAll($sql, $params = [])
+    {
         return $this->query($sql, $params)->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function execute($sql, $params = []) {
+    public function execute($sql, $params = [])
+    {
         try {
             $stmt = $this->db->prepare($sql);
             return $stmt->execute($params);
@@ -36,12 +42,14 @@ class Model {
         }
     }
 
-    public function lastInsertId() {
+    public function lastInsertId()
+    {
         return $this->db->lastInsertId();
     }
 
     // 🔹 Obtener todos los registros (con o sin Soft Delete)
-    public function all() {
+    public function all()
+    {
         $sql = "SELECT * FROM {$this->table}";
         if ($this->softDelete) {
             $sql .= " WHERE deleted_at IS NULL";
@@ -50,7 +58,8 @@ class Model {
     }
 
     // 🔹 Obtener un registro por ID (con o sin Soft Delete)
-    public function find($id) {
+    public function find($id)
+    {
         $sql = "SELECT * FROM {$this->table} WHERE id = :id";
         if ($this->softDelete) {
             $sql .= " AND deleted_at IS NULL";
@@ -59,7 +68,9 @@ class Model {
     }
 
     // 🔹 Insertar un registro
-    public function insert($data) {
+    public function insert($data)
+    {
+        var_dump($data);  // Depuración
         $fields = array_intersect_key($data, array_flip($this->fillable));
         if (empty($fields)) {
             throw new Exception("No valid fields provided for insertion.");
@@ -73,8 +84,10 @@ class Model {
         return $this->lastInsertId();
     }
 
+
     // 🔹 Actualizar un registro
-    public function update($id, $data) {
+    public function update($id, $data)
+    {
         $fields = array_intersect_key($data, array_flip($this->fillable));
         if (empty($fields)) {
             throw new Exception("No valid fields provided for update.");
@@ -91,7 +104,8 @@ class Model {
     }
 
     // 🔹 Eliminar un registro (Soft Delete si está habilitado, Hard Delete si no)
-    public function delete($id) {
+    public function delete($id)
+    {
         if ($this->softDelete) {
             $sql = "UPDATE {$this->table} SET deleted_at = NOW() WHERE id = :id AND deleted_at IS NULL";
         } else {
@@ -101,7 +115,8 @@ class Model {
     }
 
     // 🔹 Restaurar un registro eliminado (Solo si Soft Delete está activado)
-    public function restore($id) {
+    public function restore($id)
+    {
         if (!$this->softDelete) {
             throw new Exception("Restore is not available for models without soft delete.");
         }
@@ -110,7 +125,8 @@ class Model {
     }
 
     // 🔹 Búsqueda por condiciones (con o sin Soft Delete)
-    public function where($conditions = []) {
+    public function where($conditions = [])
+    {
         $where = "";
         $params = [];
 

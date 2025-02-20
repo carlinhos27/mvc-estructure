@@ -3,6 +3,7 @@ class Router
 {
     private static $instance = null;
     private $routes = [];
+    private $authRoutes = []; // Rutas exclusivas de autenticación
 
     public function __construct()
     {
@@ -19,7 +20,7 @@ class Router
         return self::$instance;
     }
 
-    // Métodos para definir rutas con opción de middleware
+    // Métodos para definir rutas generales
     public function get($route, $controllerAction, $middleware = null)
     {
         $this->add('GET', $route, $controllerAction, $middleware);
@@ -30,14 +31,37 @@ class Router
         $this->add('POST', $route, $controllerAction, $middleware);
     }
 
-    // Añadir rutas con middleware opcional
+    // Métodos para definir rutas de autenticación
+    public function authGet($route, $controllerAction, $middleware = null)
+    {
+        $this->addAuth('GET', $route, $controllerAction, $middleware);
+    }
+
+    public function authPost($route, $controllerAction, $middleware = null)
+    {
+        $this->addAuth('POST', $route, $controllerAction, $middleware);
+    }
+
+    // Añadir rutas generales con middleware opcional
     private function add($method, $route, $controllerAction, $middleware = null)
     {
         if (is_array($controllerAction) && count($controllerAction) === 2) {
             $this->routes[$method][$route] = [
                 'controller' => $controllerAction[0],
                 'method' => $controllerAction[1],
-                'middleware' => $middleware // Ahora sí pasamos el middleware correctamente
+                'middleware' => $middleware
+            ];
+        }
+    }
+
+    // Añadir rutas de autenticación con middleware opcional
+    private function addAuth($method, $route, $controllerAction, $middleware = null)
+    {
+        if (is_array($controllerAction) && count($controllerAction) === 2) {
+            $this->authRoutes[$method][$route] = [
+                'controller' => $controllerAction[0],
+                'method' => $controllerAction[1],
+                'middleware' => $middleware
             ];
         }
     }
@@ -51,24 +75,15 @@ class Router
             $uri = 'home';
         }
 
+        // Buscar primero en rutas de autenticación
+        if (isset($this->authRoutes[$method][$uri])) {
+            $this->callController($this->authRoutes[$method][$uri]);
+            return;
+        }
+
+        // Luego buscar en rutas generales
         if (isset($this->routes[$method][$uri])) {
-            $routeData = $this->routes[$method][$uri];
-
-            // // 🔹 Ejecutar Middleware si está definido
-            // if (!empty($routeData['middleware'])) {
-            //     $middlewareClass = $routeData['middleware'];
-            //     // Cambia la parte de require para que funcione correctamente
-            //     require_once __DIR__ . "/../../system/middleware/{$middlewareClass}.php";
-
-
-            //     if (class_exists($middlewareClass)) {
-            //         $middlewareClass::handle();
-            //     } else {
-            //         die("Middleware '$middlewareClass' no encontrado.");
-            //     }
-            // }
-
-            $this->callController($routeData);
+            $this->callController($this->routes[$method][$uri]);
             return;
         }
 
@@ -86,49 +101,45 @@ class Router
     }
 
     private function callController($controllerAction, $params = [])
-{
-    $controllerName = $controllerAction['controller'];
-    $methodName = $controllerAction['method'];
+    {
+        $controllerName = $controllerAction['controller'];
+        $methodName = $controllerAction['method'];
 
-    // Posibles rutas donde podría estar el controlador
-    $controllerPaths = [
-        __DIR__ . "/../../app/controllers/{$controllerName}.php",  // app/controllers/
-        __DIR__ . "/../auth/{$controllerName}.php" // system/auth/
-    ];
+        // Posibles rutas donde podría estar el controlador
+        $controllerPaths = [
+            __DIR__ . "/../../app/controllers/{$controllerName}.php",
+            __DIR__ . "/../auth/{$controllerName}.php"
+        ];
 
-    $controllerPath = null;
+        $controllerPath = null;
 
-    // Buscar el controlador en las posibles rutas
-    foreach ($controllerPaths as $path) {
-        if (file_exists($path)) {
-            $controllerPath = $path;
-            break;
+        // Buscar el controlador en las posibles rutas
+        foreach ($controllerPaths as $path) {
+            if (file_exists($path)) {
+                $controllerPath = $path;
+                break;
+            }
         }
+
+        // Si el controlador no se encuentra, mostrar error
+        if (!$controllerPath) {
+            $this->handleNotFound("Controlador '$controllerName' no encontrado.");
+        }
+
+        require_once $controllerPath;
+
+        if (!class_exists($controllerName)) {
+            $this->handleNotFound("Clase '$controllerName' no encontrada.");
+        }
+
+        $controller = new $controllerName();
+
+        if (!method_exists($controller, $methodName)) {
+            $this->handleNotFound("Método '$methodName' no encontrado en '$controllerName'.");
+        }
+
+        call_user_func_array([$controller, $methodName], $params);
     }
-
-    // Si el controlador no se encuentra, mostrar error
-    if (!$controllerPath) {
-        $this->handleNotFound("Controlador '$controllerName' no encontrado.");
-    }
-
-    // Incluir el archivo del controlador
-    require_once $controllerPath;
-
-    // Asegurar que la clase existe después de incluir el archivo
-    if (!class_exists($controllerName)) {
-        $this->handleNotFound("Clase '$controllerName' no encontrada.");
-    }
-
-    $controller = new $controllerName();
-
-    // Verificar si el método existe en el controlador
-    if (!method_exists($controller, $methodName)) {
-        $this->handleNotFound("Método '$methodName' no encontrado en '$controllerName'.");
-    }
-
-    // Llamar al método del controlador con los parámetros
-    call_user_func_array([$controller, $methodName], $params);
-}
 
     private function handleNotFound($message = "Página no encontrada")
     {
