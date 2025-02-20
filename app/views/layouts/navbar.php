@@ -9,7 +9,15 @@ $menuItems = [
     'label' => 'Clientes',
     'url' => '/clientes',
     'submenu' => [
-      ['label' => 'Nuevo cliente', 'url' => '/clientes/crear']
+      ['label' => 'Nuevo', 'url' => '/clientes/crear']
+    ]
+  ],
+  [
+    'label' => 'Productos',
+    'url' => '/productos',
+    'submenu' => [
+      ['label' => 'Nuevo', 'url' => '/producto/crear'],
+      ['label' => 'listado completo', 'url' => '/clientes/crear']
     ]
   ],
 ];
