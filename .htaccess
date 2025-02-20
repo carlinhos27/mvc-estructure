@@ -1,0 +1,23 @@
+# Activar el motor de reescritura
+RewriteEngine On
+
+# Redirigir todas las peticiones a public/index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ public/index.php?url=$1 [QSA,L]
+
+# Proteger archivos sensibles
+<FilesMatch "\.(env|config|sql|ini|log|sh|phpunit|bak|htaccess)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Forzar HTTPS si el servidor lo soporta
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Bloquear el acceso a carpetas internas
+RewriteRule ^(app|config|helpers|storage|system)/ - [F,L]
+
+# Desactivar listado de directorios
+Options -Indexes
