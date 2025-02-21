@@ -6,18 +6,10 @@ $menuItems = [
     'submenu' => []
   ],
   [
-    'label' => 'Clientes',
-    'url' => '/clientes',
+    'label' => 'Usuarios',
+    'url' => '/usuarios',
     'submenu' => [
-      ['label' => 'Nuevo', 'url' => '/clientes/crear']
-    ]
-  ],
-  [
-    'label' => 'Productos',
-    'url' => '/productos',
-    'submenu' => [
-      ['label' => 'Nuevo', 'url' => '/producto/crear'],
-      ['label' => 'listado completo', 'url' => '/clientes/crear']
+      ['label' => 'Nuevo', 'url' => '/usuarios/nuevo']
     ]
   ],
 ];

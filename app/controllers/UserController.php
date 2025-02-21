@@ -4,15 +4,24 @@ class UserController extends Controller
     public function index()
     {
         $userModel = new User();
-        $users = $userModel->all();
+        $users = $userModel->getAllUsers();
+        $title = 'Usuarios';
+        ob_start();
         view('users/index', ['users' => $users]);
+        $content = ob_get_clean();
+        view('layouts/layout', compact('title', 'content'));
+
     }
 
     public function create()
     {
         $roleModel = new Role();
-        $roles = $roleModel->all();
+        $roles = $roleModel->getAllRoles();
+        $title = 'Nuevo Usuario';
+        ob_start();
         view('users/create', ['roles' => $roles]);
+        $content = ob_get_clean();
+        view('layouts/layout', compact('title', 'content'));
     }
 
     public function store()
