@@ -45,7 +45,10 @@ $currentUrl = $_SERVER['REQUEST_URI']; // Obtiene la URL actual
         <?php endforeach; ?>
       </ul>
     </div>
-    <a class="btn btn-ghost text-xl" href="/">CRM</a>
+    <a class="btn btn-ghost text-xl" href="/"><?php if (isset($empresa) && !empty($empresa)): ?>
+        <?= htmlspecialchars($empresa['nombre']) ?>
+      <?php endif;  ?> CRM
+    </a>
   </div>
 
   <div class="navbar-center hidden lg:flex">
@@ -79,11 +82,32 @@ $currentUrl = $_SERVER['REQUEST_URI']; // Obtiene la URL actual
     </ul>
   </div>
   <div class="navbar-end">
-    <div class="flex items-center gap-2 cursor-pointer px-4 py-2 rounded-lg hover:bg-gray-200">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A9 9 0 1118.88 17.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
-      <span>User</span>
+    <div class="dropdown dropdown-end desktop-menu">
+      <label tabindex="0" class="btn btn-ghost text-l cursor-pointer">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A9 9 0 1118.88 17.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        <span class="ml-2"><?php echo $_SESSION['user_name']; ?></span>
+      </label>
+      <ul tabindex="0" class="menu dropdown-content bg-base-100 rounded-box w-52 p-1 shadow mt-3">
+        <li>
+          <a href="/logout" class="btn btn-ghost w-full">Cerrar sesión</a>
+        </li>
+      </ul>
+    </div>
+
+
+    <div class="dropdown dropdown-end lg:hidden">
+      <label tabindex="0" class="btn btn-ghost text-xl cursor-pointer">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A9 9 0 1118.88 17.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </label>
+      <ul tabindex="0" class="menu dropdown-content bg-base-100 rounded-box w-52 p-2 shadow">
+        <li>
+          <a href="/logout" class="btn btn-ghost w-full">Cerrar sesión</a>
+        </li>
+      </ul>
     </div>
   </div>
 </div>

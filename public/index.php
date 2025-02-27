@@ -1,16 +1,21 @@
 <?php
-// Habilitar errores para depuración
+
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-
 require_once '../helpers/helpers.php';
+require_once '../system/middleware/AuthMiddleware.php';
 
 
-// Autoload para cargar clases de `app/core/`, `app/controllers/` y `app/models/`
-spl_autoload_register(function ($class) {
-    $paths = ['../system/core/', '../app/controllers/', '../app/models/'];
-    
+function autoloadPaths($class) {
+    $paths = [
+        '../system/core/',
+        '../system/services/',
+        '../app/controllers/',
+        '../app/models/',
+        '../system/auth/'
+    ];
+
     foreach ($paths as $path) {
         $file = $path . $class . '.php';
         if (file_exists($file)) {
@@ -18,14 +23,16 @@ spl_autoload_register(function ($class) {
             return;
         }
     }
-});
+}
 
-// Instanciar el router
+spl_autoload_register('autoloadPaths');
+
+AuthMiddleware::check();
+
 $router = new Router();
 
-// Cargar rutas
 require_once '../routes/web.php';
 require_once '../routes/auth.php';
 
-// Procesar la solicitud
 $router->dispatch();
+exit; 

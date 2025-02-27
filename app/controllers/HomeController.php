@@ -3,12 +3,20 @@ class HomeController extends Controller
 {
     public function index()
     {
+        if (!$this->session->has('user_id')) {
+            header('Location: /login');
+            exit;
+        }
         $title = "Inicio";
-        // Capturar la vista en un buffer para pasarlo al layout
+        $empresaid = $this->session->get('empresa_id');
+
+        $empresaModel = new Empresa();
+        $empresa = $empresaModel->find($empresaid);
+
         ob_start();
-        view('home/index');
+        view('home/index', compact("empresa"));
         $content = ob_get_clean();
-        // Cargar el layout con la vista renderizada
-        view('layouts/layout', compact('title', 'content'));
+
+        view('layouts/layout', compact('title', 'content', 'empresa'));
     }
 }

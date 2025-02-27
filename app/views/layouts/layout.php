@@ -10,7 +10,7 @@
     <link href="/assets/css/custom.css" rel="stylesheet">
 </head>
 <body>
-    <?php view('layouts/navbar'); ?>
+    <?php view('layouts/navbar',compact('empresa')); ?>
     <div class="container mx-auto px-4 py-4">
         <?= $content ?>
     </div>

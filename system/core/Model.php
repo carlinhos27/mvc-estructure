@@ -2,9 +2,9 @@
 class Model
 {
     protected $db;
-    protected $table = ''; // Nombre de la tabla
-    protected $fillable = []; // Campos permitidos
-    protected $softDelete = true; // 🚀 Soft Delete opcional
+    protected $table = '';
+    protected $fillable = [];
+    protected $softDelete = true;
 
     public function __construct()
     {
@@ -47,7 +47,6 @@ class Model
         return $this->db->lastInsertId();
     }
 
-    // 🔹 Obtener todos los registros (con o sin Soft Delete)
     public function all()
     {
         $sql = "SELECT * FROM {$this->table}";
@@ -57,7 +56,6 @@ class Model
         return $this->fetchAll($sql);
     }
 
-    // 🔹 Obtener un registro por ID (con o sin Soft Delete)
     public function find($id)
     {
         $sql = "SELECT * FROM {$this->table} WHERE id = :id";
@@ -67,25 +65,15 @@ class Model
         return $this->fetch($sql, ['id' => $id]);
     }
 
-    // 🔹 Insertar un registro
     public function insert($data)
     {
-        var_dump($data);  // Depuración
-        $fields = array_intersect_key($data, array_flip($this->fillable));
-        if (empty($fields)) {
-            throw new Exception("No valid fields provided for insertion.");
-        }
+        $columns = implode(", ", array_keys($data));
+        $values = ":" . implode(", :", array_keys($data));
 
-        $columns = implode(', ', array_keys($fields));
-        $placeholders = implode(', ', array_map(fn($col) => ":$col", array_keys($fields)));
-
-        $sql = "INSERT INTO {$this->table} ($columns) VALUES ($placeholders)";
-        $this->execute($sql, $fields);
-        return $this->lastInsertId();
+        $sql = "INSERT INTO " . $this->table . " ($columns) VALUES ($values)";
+        return $this->execute($sql, $data) ? $this->lastInsertId() : false;
     }
 
-
-    // 🔹 Actualizar un registro
     public function update($id, $data)
     {
         $fields = array_intersect_key($data, array_flip($this->fillable));
@@ -103,7 +91,6 @@ class Model
         return $this->execute($sql, $fields);
     }
 
-    // 🔹 Eliminar un registro (Soft Delete si está habilitado, Hard Delete si no)
     public function delete($id)
     {
         if ($this->softDelete) {
@@ -114,7 +101,6 @@ class Model
         return $this->execute($sql, ['id' => $id]);
     }
 
-    // 🔹 Restaurar un registro eliminado (Solo si Soft Delete está activado)
     public function restore($id)
     {
         if (!$this->softDelete) {
@@ -124,7 +110,6 @@ class Model
         return $this->execute($sql, ['id' => $id]);
     }
 
-    // 🔹 Búsqueda por condiciones (con o sin Soft Delete)
     public function where($conditions = [])
     {
         $where = "";
@@ -139,12 +124,34 @@ class Model
             $where = rtrim($where, "AND ");
         }
 
-        if ($this->softDelete) {
+        // Verificar si softDelete está habilitado y si la columna 'deleted_at' existe
+        if ($this->softDelete && isset($this->tableColumns['deleted_at'])) {
             $sql = "SELECT * FROM {$this->table} $where AND deleted_at IS NULL";
         } else {
             $sql = "SELECT * FROM {$this->table} $where";
         }
 
+        // Llamar al método fetchAll para ejecutar la consulta
         return $this->fetchAll($sql, $params);
+    }
+
+
+    // RELACIONES
+    public function hasOne($relatedModel, $foreignKey, $localKey = 'id')
+    {
+        $related = new $relatedModel();
+        return $related->where([$foreignKey => $this->$localKey])[0] ?? null;
+    }
+
+    public function hasMany($relatedModel, $foreignKey, $localKey = 'id')
+    {
+        $related = new $relatedModel();
+        return $related->where([$foreignKey => $this->$localKey]);
+    }
+
+    public function belongsTo($relatedModel, $foreignKey, $ownerKey = 'id')
+    {
+        $related = new $relatedModel();
+        return $related->where([$ownerKey => $this->$foreignKey])[0] ?? null;
     }
 }

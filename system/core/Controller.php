@@ -3,7 +3,12 @@
 define('APP_PATH', realpath(dirname(__FILE__)));
 
 class Controller {
+    protected $session;
 
+    public function __construct()
+    {
+        $this->session = new SessionService();
+    }
     // Cargar el modelo de manera segura
     public function loadModel($model) {
         $modelPath = APP_PATH . "/../models/$model.php"; // Ruta absoluta al modelo

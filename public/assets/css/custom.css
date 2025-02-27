@@ -1,0 +1,14 @@
+/* Ocultar el menú de escritorio en pantallas pequeñas */
+@media (max-width: 1024px) {
+    .desktop-menu {
+      display: none;
+    }
+  }
+  
+  /* Mostrar el menú de escritorio en pantallas grandes */
+  @media (min-width: 1025px) {
+    .desktop-menu {
+      display: block;
+    }
+  }
+  

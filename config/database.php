@@ -4,5 +4,5 @@ return [
     'dbname' => 'crm1',
     'user' => 'root',
     'password' => '',
-    'charset' => 'utf8mb4'
+    'charset' => 'utf8'
 ];
