@@ -16,5 +16,3 @@ Este sistema está desarrollado siguiendo una arquitectura MVC (Modelo-Vista-Con
 El objetivo de este proyecto es ofrecer un enfoque limpio y organizado, lo que facilita su comprensión y expansión tanto a principiantes como a desarrolladores con más experiencia. Ya sea que estés comenzando con la programación o seas un desarrollador experimentado, este sistema proporciona una base sólida para construir.
 
 ---
-
-He mejorado la fluidez y la claridad del texto, haciéndolo accesible para personas de todos los niveles. ¿Te gustaría ajustar algo más?
